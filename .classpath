@@ -18,5 +18,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="/Users/juanmahidalgo/Downloads/jsoup-1.8.3.jar"/>
 	<classpathentry kind="lib" path="/Users/juanmahidalgo/Downloads/postgresql-9.4.1208.jre6.jar"/>
+	<classpathentry kind="lib" path="/Users/juanmahidalgo/Downloads/leveldbjni-all-1.8.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

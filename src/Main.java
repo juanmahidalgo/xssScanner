@@ -1,4 +1,3 @@
-import java.io.BufferedReader;
 import java.io.IOException;
 import org.jsoup.Connection.Response;
 import org.jsoup.Connection;
@@ -6,9 +5,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import java.net.URL;
-import java.net.URLConnection;
-import java.sql.*;
+import org.iq80.leveldb.*;
+import static org.fusesource.leveldbjni.JniDBFactory.*;
+import java.io.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -20,7 +20,6 @@ public class Main {
 	public static List<String> internalLinks;
 	
 	public static void main(String[] args) throws IOException{
-		String xssString = "<script> alert(1) </script>"; // script to test
 		url = args[0]; // the URL 
 		numberOfThreads = Integer.parseInt(args[1]); // number of threads to use
 
@@ -82,36 +81,8 @@ public class Main {
 				Document docLink = Jsoup.connect(completeLink).get(); // connect and get Doc
 				getInternalLinks(docLink, urlBase);
 			}
-//			System.out.println("\n completeLink: " + completeLink);
-//
-//
-//			if(!completeLink.equals(urlBase) ){
-//				//System.out.println("\n link: " + url + link.attr("href"));
-//				//System.out.println("text : " + link.text());
-//				//System.out.println("value : " + link);
-//				if (link.attr("href").startsWith("/") & !internalLinks.contains(completeLink)){
-//					System.out.println("\n ADDING link: " + urlBase + link.attr("href"));
-//					internalLinks.add(completeLink);
-//					Document docLink = Jsoup.connect(completeLink).get(); // connect and get Doc
-//					internalLinks.add(completeLink);
-//					getInternalLinks(docLink, completeLink);
-//				}
-//			}
-//			urlBase = completeLink;
-
 		}
-		
-		//return internalLinks;
 	}
-	
-	 // JDBC driver name and database URL
-	
-		
-	
-	
-	
-		  
-	
 	
 	public static boolean isScriptInResponse(Document doc, String script){
 		Elements elements = doc.getElementsContainingText(script);
@@ -197,70 +168,16 @@ class analizerWithThread implements Runnable {
 			return false;
 		}
 	   
-	   static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-		static final String DB_URL = "jdbc:postgresql://localhost/EMP";
-		
-		//  Database credentials
-		static final String USER = "juanhidalgo";
-		static final String PASS = "password";
-		   
-		public static void saveIntoDatabase(String URL, String input) {
-			Connection conn = null;
-		    Statement stmt = null;
-		    try{
-		      //STEP 2: Register JDBC driver
-		    	Class.forName("org.postgresql.Driver");
-		
-		    	//STEP 3: Open a connection
-		    	System.out.println("Connecting to database...");
-		    	conn = (Connection) DriverManager.getConnection(DB_URL,USER,PASS);
-		
-		    	//STEP 4: Execute a query
-		    	System.out.println("Creating statement...");
-		    	stmt = ((java.sql.Connection) conn).createStatement();
-		    	String sql;
-		    	sql = "INSERT INTO URLS (url, input) VALUES (" + URL + "," + input + ")" ;
-		    	ResultSet rs = stmt.executeQuery(sql);
-		
-		    	//STEP 5: Extract data from result set
-//		    	while(rs.next()){
-//		    		//Retrieve by column name
-//		    		int id  = rs.getInt("id");
-//		    		int age = rs.getInt("age");
-//		    		String first = rs.getString("first");
-//		    		String last = rs.getString("last");
-	//	
-//		    		//Display values
-//		    		System.out.print("ID: " + id);
-//		    		System.out.print(", Age: " + age);
-//		    		System.out.print(", First: " + first);
-//		    		System.out.println(", Last: " + last);
-//		    	}
-		    	//STEP 6: Clean-up environment
-		    	rs.close();
-		    	stmt.close();
-		    	((BufferedReader) conn).close();
-		   }catch(SQLException se){
-		      //Handle errors for JDBC
-		      se.printStackTrace();
-		   }catch(Exception e){
-		      //Handle errors for Class.forName
-		      e.printStackTrace();
-		   }finally{
-		      //finally block used to close resources
-		  try{
-		     if(stmt!=null)
-		        stmt.close();
-		  }catch(SQLException se2){
-		  }// nothing we can do
-		  try{
-		     if(conn!=null)
-		        ((java.sql.Connection) conn).close();
-		  }catch(SQLException se){
-		     se.printStackTrace();
-		  }//end finally try
-		   }//end try
-		}//end main
+		public static void saveIntoDatabase(String URL, String input) throws IOException {
+			Options options = new Options();
+			options.createIfMissing(true);
+			DB db = factory.open(new File("example"), options);
+			try {
+				db.put(bytes(URL), bytes(input));
+			} finally {
+			  db.close();
+			}
+		}
 		
 	   
 	}
