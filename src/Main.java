@@ -27,7 +27,7 @@ public class Main {
 		url = args[0]; // the URL 
 		numberOfThreads = Integer.parseInt(args[1]); // number of threads to use
 		cookie = null;
-		if(args[2] != null){
+		if(args.length == 3){
 			cookie = args[2];
 		}
 		if(checkInDatabase(url)){
